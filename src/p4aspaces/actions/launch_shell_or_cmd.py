@@ -55,6 +55,7 @@ def process_uname_arg(arg):
         print("Please specify a user on your host to "+
             "use for permissions (to avoid running " +
             "the build as root, which is UNSAFE).")
+        print("Use --map-to-user option to skip this prompt next time.")
         unameresult = input("Username:")
         if unameresult == "root" or str(unameresult) == "1":
             result = input("You specified 'root'. This is UNSAFE. " +
