@@ -1,19 +1,26 @@
 
-# Get the kivy test app:
-RUN mkdir -p /tmp/test-app/ && cd /tmp/test-app && git clone https://github.com/kivy/python-for-android/ .
-RUN cp -R /tmp/test-app/testapps/testapp_keyboard/ /root/testapp-sdl2-keyboard/
-RUN cp -R /tmp/test-app/testapps/testapp_flask/ /root/testapp-webview-flask/
-RUN cp -R /tmp/test-app/testapps/testapp_nogui/ /root/testapp-service_only-nogui/
-
-# Prepare output folder:
-RUN mkdir /root/output
-VOLUME /root/output
+# Prepare user environment:
+RUN apt install -y sudo
+RUN mkdir -p /home/userhome/
+{PREPARE_USER}
 
 # Workspace folder (if used, otherwise the following line will be blank):
 {WORKSPACE_VOLUME}
 
-# Start directory:
+# Volume for output:
+VOLUME /home/userhome/output
+
+# Set start directory:
 WORKDIR {START_DIR}
+
+# Drop privileges:
+{DROP_TO_USER}
+
+# Get the kivy test app:
+RUN mkdir -p /tmp/test-app/ && cd /tmp/test-app && git clone https://github.com/kivy/python-for-android/ .
+RUN cp -R /tmp/test-app/testapps/testapp_keyboard/ /home/userhome/testapp-sdl2-keyboard/
+RUN cp -R /tmp/test-app/testapps/testapp_flask/ /home/userhome/testapp-webview-flask/
+RUN cp -R /tmp/test-app/testapps/testapp_nogui/ /home/userhome/testapp-service_only-nogui/
 
 # Final command line preparation:
 RUN echo '{LAUNCH_CMD}' > /tmp/launchcmd.txt
@@ -45,6 +52,7 @@ with open("/tmp/launchcmd.txt", "r") as f:\n\
 print("export ANDROIDAP='$ANDROIDAPI'" +\n\
     " ANDROIDNDKVER='$NDKVER'" +\n\
     " NDKAPI='$NDKAPI'" +\n\
+    " HOME=/home/userhome" +\n\
     " GRADLE_OPTS=\"-Xms1724m -Xmx5048m -Dorg.gradle.jvmargs='"'"'-Xms1724m -Xmx5048m'"'"'\""+\n\
     " JAVA_OPTS=\"-Xms1724m -Xmx5048m\"" +\n\
     " ANDROIDSDK=/sdk-install/ ANDROIDNDK=\"'$NDKDIR'\"")' > /tmp/cmdline.py

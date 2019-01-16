@@ -46,7 +46,8 @@ class BuildEnvironment(object):
         ).read().strip().partition("\n")[0]
 
     def get_docker_file(self, force_p4a_refetch=False, launch_cmd="bash",
-            start_dir="/root/", add_workspace=False):
+            start_dir="/home/userhome", add_workspace=False,
+            user_id_or_name="root"):
         image_name = "p4atestenv-" + str(self.name)
 
         # Obtain p4a build uuid (to control docker caching):
@@ -92,14 +93,36 @@ class BuildEnvironment(object):
                 launch_cmd.replace("\\", "\\\\").replace(
                 "\"", "\\\"").replace("\n", "\\n").replace(
                 "\r", "\\r").replace("'", "'\"'\"'"))
+            if user_id_or_name == "root" or str(user_id_or_name) == "0":
+                t = t.replace("{PREPARE_USER}", "ENV HOME /home/userhome\n" +
+                    "ENV BUILDUSERNAME root")
+                t = t.replace("{DROP_TO_USER}", "")
+            else:
+                uid = 1000
+                uname = "builduser"
+                try:
+                    uid = int(user_id_or_name)
+                except (TypeError, ValueError):
+                    uid = 1000
+                    uname = user_id_or_name
+                t = t.replace("{PREPARE_USER}",
+                    "RUN useradd -b /home -d /home/userhome/ -u " +
+                        str(uid) + " " + str(uname) + "\n" +
+                    "RUN chown -R " + str(uname) + " /home/userhome\n" +
+                    "ENV BUILDUSERNAME " + str(uname) + "\n" +
+                    "ENV HOME " + "/home/" + str(uname))
+                t = t.replace("{DROP_TO_USER}",
+                    "USER " + str(uname))
+
             t = t.replace(
                 "{START_DIR}", start_dir).replace(
                 "{WORKSPACE_VOLUME}", "" if not add_workspace else \
-                    "VOLUME /root/workspace/")
+                    "VOLUME /home/userhome/workspace/")
             return t
 
     def launch_shell(self, force_p4a_refetch=False, launch_cmd="bash",
-            output_file=None, workspace=None, clean_image_rebuild=False):
+            output_file=None, workspace=None, clean_image_rebuild=False,
+            user_id_or_name="root"):
         # Build container:
         image_name = "p4atestenv-" + str(self.name)
         container_name = image_name + "-" +\
@@ -111,8 +134,9 @@ class BuildEnvironment(object):
                 f.write(self.get_docker_file(
                     force_p4a_refetch=force_p4a_refetch,
                     launch_cmd=launch_cmd,
-                    start_dir=("/root/" if workspace is None else \
-                                        "/root/workspace/"),
+                    user_id_or_name=user_id_or_name,
+                    start_dir=("/home/userhome/" if workspace is None else \
+                                        "/home/userhome/workspace/"),
                     add_workspace=(workspace is not None),
                 ))
             
@@ -128,16 +152,21 @@ class BuildEnvironment(object):
                     file=sys.stderr)
                 sys.exit(1)
 
+            # Ensure output directory is writable:
+            os.system("chmod 777 '" +
+                os.path.join(temp_d, "output").replace("'", "'\"'\"'")
+                + "'")
+
             # Launch shell:
             workspace_volume_args = []
             if workspace != None:
                 workspace_volume_args += ["-v",
                     os.path.abspath(workspace) +
-                    ":/root/workspace:rw,Z"]
+                    ":/home/userhome/workspace:rw,Z"]
             cmd = ["docker", "run",
                 "--name", container_name, "-ti",
                 "-v", os.path.join(temp_d, "output") +
-                ":/root/output:rw,Z"] +\
+                ":/home/userhome/output:rw,Z"] +\
                 workspace_volume_args + [
                 image_name]
             subprocess.call(cmd)

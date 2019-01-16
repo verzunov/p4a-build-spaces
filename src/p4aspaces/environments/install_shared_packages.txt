@@ -1,4 +1,10 @@
 
+# Fix SDK permissions:
+RUN if [ -x /sdk-install ]; then chmod a+x /sdk-install/tools/bin/*; fi
+
+# Force-update pip to latest version:
+RUN ${PIP} install -U pip
+
 # Dependencies for extra python modules:
 RUN apt install -y libffi-dev libssl-dev
 
@@ -7,4 +13,10 @@ RUN $PIP install -U buildozer Cython
 
 # Install additional tools useful for all environments:
 RUN apt install -y cmake
+
+# Tools for debugging:
+RUN apt install -y nano vim tree
+
+# SDL2 development headers:
+RUN apt install -y libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev
 

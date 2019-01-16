@@ -27,6 +27,47 @@ import sys
 from p4aspaces.actions import actions
 import p4aspaces.buildenv as buildenv
 
+def process_uname_arg(arg):
+    uname_or_id = arg
+    try:
+        uname_or_id = int(arg)
+    except (TypeError, ValueError):
+        pass
+
+    # Try treating as user id:
+    try:
+        uidresult = int(uname_or_id)
+        # If this worked, take it as user id and be done.
+        return uidresult
+    except (TypeError, ValueError):
+        pass
+
+    # Try treating as user:
+    if uname_or_id != "interactive_prompt":
+        try:
+            import pwd
+            uidresult = pwd.getpwnam(uname_or_id).pw_uid
+            return uidresult
+        except KeyError:
+            print("COULDN'T RESOLVE USER ID: " + str(uname_or_id))
+
+    while True:
+        print("Please specify a user on your host to "+
+            "use for permissions (to avoid running " +
+            "the build as root, which is UNSAFE).")
+        unameresult = input("Username:")
+        if unameresult == "root" or str(unameresult) == "1":
+            result = input("You specified 'root'. This is UNSAFE. " +
+                "Continue? [y/N]")
+            if not result.lower() in ["y", "j", "yes"]:
+                continue
+            uname_or_id = 1
+            return uname_or_id
+        if len(unameresult.strip()) == 0:
+            continue
+        return process_uname_arg(unameresult)
+
+
 def launch_shell_or_cmd(args, shell=False):
     if shell:
         argparser = argparse.ArgumentParser(
@@ -40,6 +81,13 @@ def launch_shell_or_cmd(args, shell=False):
         default=None, nargs=1,
         help="Specify an environment to use. Use 'p4aspaces list-envs' " +
         "to list available environments")
+    argparser.add_argument("--map-to-user",
+        default="interactive_prompt", nargs=1,\
+        help="The unprivileged user which to run as. If you use a " +
+        "workspace (with --workspace), specify the user here that " +
+        "owns the workspace so you can run the build as non-root " +
+        "while still having correct access permissions",
+        dest="maptouser")
     argparser.add_argument("--force-redownload-p4a",
         default=False, action="store_true",
         help="Force docker to rebuild from the p4a download step " +
@@ -96,6 +144,11 @@ def launch_shell_or_cmd(args, shell=False):
             file=sys.stderr, flush=True)
         sys.exit(1)
 
+    # Choose user:
+    if type(args.maptouser) == list:
+        args.maptouser = args.maptouser[0]
+    uname_or_id = process_uname_arg(args.maptouser)
+
     # Choose environment:
     env_name = args.env
     if len([env for env in envs if env.name == env_name]) == 0:
@@ -114,5 +167,6 @@ def launch_shell_or_cmd(args, shell=False):
     env.launch_shell(force_p4a_refetch=args.force_p4a_redownload,
         output_file=args.output_file, launch_cmd=args.command,
         workspace=args.workspace,
+        user_id_or_name=uname_or_id,
         clean_image_rebuild=args.clean_image_rebuild)
 
