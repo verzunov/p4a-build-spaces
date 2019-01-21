@@ -16,6 +16,9 @@ WORKDIR {START_DIR}
 # Drop privileges:
 {DROP_TO_USER}
 
+# Install python-for-android:
+{INSTALL_P4A}
+
 # Get the kivy test app:
 RUN mkdir -p /tmp/test-app/ && cd /tmp/test-app && git clone https://github.com/kivy/python-for-android/ .
 RUN cp -R /tmp/test-app/testapps/testapp_keyboard/ /home/userhome/testapp-sdl2-keyboard/
@@ -24,7 +27,7 @@ RUN cp -R /tmp/test-app/testapps/testapp_nogui/ /home/userhome/testapp-service_o
 
 # Final command line preparation:
 RUN echo '{LAUNCH_CMD}' > /tmp/launchcmd.txt
-RUN echo '#!/usr/bin/python3\n\
+RUN /bin/echo -e '#!/usr/bin/python3\n\
 import json\n\
 import os\n\
 print("echo \"\"")\n\
@@ -49,13 +52,18 @@ with open("/tmp/launchcmd.txt", "r") as f:\n\
     for arg in args:\n\
         i += 1\n\
         print("CMD[" + str(i) + "]=" + shlex.quote(arg))\n\
-print("export ANDROIDAP='$ANDROIDAPI'" +\n\
+vars = ("ANDROIDAP='$ANDROIDAPI'" +\n\
     " ANDROIDNDKVER='$NDKVER'" +\n\
     " NDKAPI='$NDKAPI'" +\n\
     " HOME=/home/userhome" +\n\
     " GRADLE_OPTS=\"-Xms1724m -Xmx5048m -Dorg.gradle.jvmargs='"'"'-Xms1724m -Xmx5048m'"'"'\""+\n\
     " JAVA_OPTS=\"-Xms1724m -Xmx5048m\"" +\n\
-    " ANDROIDSDK=/sdk-install/ ANDROIDNDK=\"'$NDKDIR'\"")' > /tmp/cmdline.py
+    " PATH=\"$PATH:/home/userhome/.local/bin\"" +\n\
+    " ANDROIDSDK=/sdk-install/ ANDROIDNDK=\"'$NDKDIR'\"")\n\
+with open(os.path.expanduser("~/.bashrc"), "a", encoding="utf-8") as f1:\n\
+    f1.write("\\nexport " + vars + "\\n")\n\
+with open(os.path.expanduser("~/.bash_profile"), "a", encoding="utf-8") as f2:\n\
+    f2.write("\\nexport " + vars + "\\n")' > /tmp/cmdline.py
 
 CMD ["bash", "-c", "python3 /tmp/cmdline.py > /tmp/launch.sh; source /tmp/launch.sh; exec \"${CMD[@]}\""]
 

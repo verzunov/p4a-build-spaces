@@ -81,12 +81,14 @@ class BuildEnvironment(object):
             install_shared_instructions = f.read().strip()
         with open(os.path.join(self.path, "Dockerfile"), "r") as f:
             t = f.read()
-            t = t.replace("{P4A_INSTALL_CMD}",
-                "$PIP install -U '" + str(
+            test_app_instructions = test_app_instructions.replace(
+                "{INSTALL_P4A}",
+                "RUN $PIP install -U --user '" + str(
                 dl_target.replace("'", "'\"'\"'")) + "'  # " +
-                "p4a build " + str(build_p4a_uuid))
+                "p4a build " + str(build_p4a_uuid) + "\n" +
+                "RUN $PIP install -U --user buildozer")
             t = t.replace(
-                "{TEST_APP_INSTRUCTIONS}", test_app_instructions).replace(
+                "{P4A_AND_TEST_APP_INSTRUCTIONS}", test_app_instructions).replace(
                 "{INSTALL_SHARED_PACKAGES}", install_shared_instructions)
             t = t.replace(
                 "{LAUNCH_CMD}",
@@ -110,7 +112,7 @@ class BuildEnvironment(object):
                         str(uid) + " " + str(uname) + "\n" +
                     "RUN chown -R " + str(uname) + " /home/userhome\n" +
                     "ENV BUILDUSERNAME " + str(uname) + "\n" +
-                    "ENV HOME " + "/home/" + str(uname))
+                    "ENV HOME " + "/home/userhome")
                 t = t.replace("{DROP_TO_USER}",
                     "USER " + str(uname))
 
