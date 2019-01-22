@@ -1,6 +1,8 @@
 
 # Prepare user environment:
-RUN apt install -y sudo
+RUN apt install -y psmisc bash sudo
+RUN /bin/echo -e '\nBASH_ENV="~/.additional_env"\n' >> /etc/environment
+ENV BASH_ENV="~/.additional_env"
 RUN mkdir -p /home/userhome/
 {PREPARE_USER}
 
@@ -52,18 +54,30 @@ with open("/tmp/launchcmd.txt", "r") as f:\n\
     for arg in args:\n\
         i += 1\n\
         print("CMD[" + str(i) + "]=" + shlex.quote(arg))\n\
-vars = ("ANDROIDAP='$ANDROIDAPI'" +\n\
-    " ANDROIDNDKVER='$NDKVER'" +\n\
-    " NDKAPI='$NDKAPI'" +\n\
-    " HOME=/home/userhome" +\n\
-    " GRADLE_OPTS=\"-Xms1724m -Xmx5048m -Dorg.gradle.jvmargs='"'"'-Xms1724m -Xmx5048m'"'"'\""+\n\
-    " JAVA_OPTS=\"-Xms1724m -Xmx5048m\"" +\n\
-    " PATH=\"$PATH:/home/userhome/.local/bin\"" +\n\
-    " ANDROIDSDK=/sdk-install/ ANDROIDNDK=\"'$NDKDIR'\"")\n\
-with open(os.path.expanduser("~/.bashrc"), "a", encoding="utf-8") as f1:\n\
-    f1.write("\\nexport " + vars + "\\n")\n\
+vars = ["ANDROIDAP='$ANDROIDAPI'",\n\
+    "ANDROIDNDKVER='$NDKVER'",\n\
+    "NDKAPI='$NDKAPI'",\n\
+    "HOME=/home/userhome",\n\
+    "GRADLE_OPTS=\"-Xms1724m -Xmx5048m -Dorg.gradle.jvmargs='"'"'-Xms1724m -Xmx5048m'"'"'\"",\n\
+    "JAVA_OPTS=\"-Xms1724m -Xmx5048m\"",\n\
+    "TESTPATH=\"$PATH:/home/userhome/.local/bin\"",\n\
+    "PATH=\"$PATH:/home/userhome/.local/bin\"",\n\
+    "ANDROIDSDK=/sdk-install/ ANDROIDNDK=\"'$NDKDIR'\"",\n\
+    ]\n\
+with open(os.path.expanduser("~/.pam_environment"), "a", encoding="utf-8") as f1:\n\
+    f1.write("\\n" + "\\n".join([\n\
+        var.partition("=")[0] + " DEFAULT=" +\n\
+        var.partition("=")[2] for var in vars]))\n\
 with open(os.path.expanduser("~/.bash_profile"), "a", encoding="utf-8") as f2:\n\
-    f2.write("\\nexport " + vars + "\\n")' > /tmp/cmdline.py
+    f2.write("\\n" + "\\nexport ".join(vars) + "\\n")\n\
+with open(os.path.expanduser("~/.additional_env"), "a", encoding="utf-8") as f3:\n\
+    f3.write("\\n" + "\\nexport ".join(vars) + "\\n")' > /tmp/cmdline.py
 
-CMD ["bash", "-c", "python3 /tmp/cmdline.py > /tmp/launch.sh; source /tmp/launch.sh; exec \"${CMD[@]}\""]
+# Actual launch script:
+RUN /bin/echo -e '#!/bin/sh\n\
+python3 /tmp/cmdline.py > /tmp/launch-prepare.sh\n\
+source /tmp/launch-prepare.sh\n\
+exec -- ${CMD[@]}' > /tmp/launch.sh
+
+CMD ["bash", "/tmp/launch.sh"]
 
