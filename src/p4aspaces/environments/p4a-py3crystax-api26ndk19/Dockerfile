@@ -35,4 +35,4 @@ RUN ln -s /usr/bin/python3 /usr/bin/python3.5
 # Install shared packages:
 {INSTALL_SHARED_PACKAGES}
 
-{P4A_AND_TEST_APP_INSTRUCTIONS}
+{SETUP_USER_ENV}

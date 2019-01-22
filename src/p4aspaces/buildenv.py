@@ -73,22 +73,29 @@ class BuildEnvironment(object):
         else:
             dl_target = str(dl_target).strip()
 
-        with open(os.path.join(self.envs_dir, "test_app_instructions.txt"),
+        with open(os.path.join(self.envs_dir, "setup_user_env.txt"),
                   "r") as f:
-            test_app_instructions = f.read().strip()
+            setup_user_env_instructions = f.read().strip()
         with open(os.path.join(self.envs_dir, "install_shared_packages.txt"),
                   "r") as f:
             install_shared_instructions = f.read().strip()
+        with open(os.path.join(self.envs_dir, "install_shared_packages_user.txt"),
+                  "r") as f:
+            install_shared_instructions_user = f.read().strip()
         with open(os.path.join(self.path, "Dockerfile"), "r") as f:
             t = f.read()
-            test_app_instructions = test_app_instructions.replace(
-                "{INSTALL_P4A}",
-                "RUN $PIP install -U --user '" + str(
-                dl_target.replace("'", "'\"'\"'")) + "'  # " +
-                "p4a build " + str(build_p4a_uuid) + "\n" +
-                "RUN $PIP install -U --user buildozer")
+            install_shared_instructions_user = \
+                install_shared_instructions_user.replace(
+                "{P4A_URL}", "'" + str(
+                dl_target.replace("'", "'\"'\"'")) + "'").replace(
+                "{P4A_COMMENT}", " # " +
+                "p4a build " + str(build_p4a_uuid))
+            setup_user_env_instructions = \
+                setup_user_env_instructions.replace(
+                "{INSTALL_SHARED_PACKAGES_USER}",
+                install_shared_instructions_user)
             t = t.replace(
-                "{P4A_AND_TEST_APP_INSTRUCTIONS}", test_app_instructions).replace(
+                "{SETUP_USER_ENV}", setup_user_env_instructions).replace(
                 "{INSTALL_SHARED_PACKAGES}", install_shared_instructions)
             t = t.replace(
                 "{LAUNCH_CMD}",

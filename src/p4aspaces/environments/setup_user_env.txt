@@ -18,8 +18,8 @@ WORKDIR {START_DIR}
 # Drop privileges:
 {DROP_TO_USER}
 
-# Install python-for-android:
-{INSTALL_P4A}
+# Install shared user packages:
+{INSTALL_SHARED_PACKAGES_USER}
 
 # Get the kivy test app:
 RUN mkdir -p /tmp/test-app/ && cd /tmp/test-app && git clone https://github.com/kivy/python-for-android/ .
@@ -69,6 +69,10 @@ with open(os.path.expanduser("~/.pam_environment"), "a", encoding="utf-8") as f1
         var.partition("=")[0] + " DEFAULT=" +\n\
         var.partition("=")[2] for var in vars]))\n\
 with open(os.path.expanduser("~/.bash_profile"), "a", encoding="utf-8") as f2:\n\
+    f2.write("\\n" + "\\nexport ".join(vars) + "\\n")\n\
+with open(os.path.expanduser("~/.profile"), "a", encoding="utf-8") as f2:\n\
+    f2.write("\\n" + "\\nexport ".join(vars) + "\\n")\n\
+with open(os.path.expanduser("~/.bashrc"), "a", encoding="utf-8") as f2:\n\
     f2.write("\\n" + "\\nexport ".join(vars) + "\\n")\n\
 with open(os.path.expanduser("~/.additional_env"), "a", encoding="utf-8") as f3:\n\
     f3.write("\\n" + "\\nexport ".join(vars) + "\\n")' > /tmp/cmdline.py

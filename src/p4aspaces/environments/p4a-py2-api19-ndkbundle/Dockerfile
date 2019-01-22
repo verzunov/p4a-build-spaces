@@ -27,4 +27,4 @@ RUN mkdir -p /tmp/ndk/ && cd /tmp/ndk/ && wget ${NDK_DL} && unzip -q android-ndk
 # Install shared packages:
 {INSTALL_SHARED_PACKAGES}
 
-{P4A_AND_TEST_APP_INSTRUCTIONS}
+{SETUP_USER_ENV}
