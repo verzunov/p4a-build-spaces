@@ -18,9 +18,8 @@ RUN apt update && apt install -y zip python3 python-pip python python3-virtualen
 RUN mkdir /sdk-install/
 RUN cd /sdk-install && wget https://dl.google.com/android/repository/${SDK_TOOLS}
 RUN cd /sdk-install && unzip ./sdk-tools-*.zip && chmod +x ./tools//bin/sdkmanager
-RUN yes | /sdk-install/tools/bin/sdkmanager --licenses
 RUN /sdk-install/tools/bin/sdkmanager --update
-RUN /sdk-install/tools/bin/sdkmanager "platform-tools" "platforms;android-19" "ndk-bundle" "build-tools;25.0.2"
+RUN yes | /sdk-install/tools/bin/sdkmanager "platform-tools" "platforms;android-19" "ndk-bundle" "build-tools;25.0.2"
 
 # Obtain Android NDK:
 RUN mkdir -p /tmp/ndk/ && cd /tmp/ndk/ && wget ${NDK_DL} && unzip -q android-ndk*.zip && mv android-*/ /ndk/

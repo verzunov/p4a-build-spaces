@@ -19,9 +19,8 @@ RUN apt update && apt install -y zip python3 python-pip python python3-virtualen
 RUN mkdir /sdk-install/
 RUN cd /sdk-install && wget --read-timeout=5 --tries=0 https://dl.google.com/android/repository/${SDK_TOOLS}
 RUN cd /sdk-install && unzip ./sdk-tools-*.zip && chmod +x ./tools//bin/sdkmanager
-RUN yes | /sdk-install/tools/bin/sdkmanager --licenses
 RUN /sdk-install/tools/bin/sdkmanager --update
-RUN /sdk-install/tools/bin/sdkmanager "platform-tools" "platforms;android-$ANDROIDAPI" "ndk-bundle" "build-tools;26.0.1"
+RUN yes | /sdk-install/tools/bin/sdkmanager "platform-tools" "platforms;android-$ANDROIDAPI" "ndk-bundle" "build-tools;26.0.1"
 
 # Get CrystaX NDK:
 RUN mkdir -p /crystax-ndk && cd /crystax-ndk && wget --read-timeout=5 --tries=0 https://www.crystax.net/download/${CRYSTAX_FILE}.tar.xz -O crystax.tar.xz && tar xf crystax.tar.xz \
