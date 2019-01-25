@@ -34,18 +34,19 @@ import json\n\
 import os\n\
 print("echo \"\"")\n\
 print("echo \"To build a kivy demo app, use this command:\"")\n\
+init_file = ""\n\
 if os.environ["PIP"] == "pip2":\n\
-    print("echo \"cd ~/testapp-sdl2-keyboard && p4a apk --arch=armeabi-v7a --name test --package com.example.test --version 1 --requirements=kivy,python2 --private .\"")\n\
-    print("shopt -s expand_aliases")\n\
-    print("alias testbuild=\"cd ~/testapp-sdl2-keyboard && p4a apk --arch=armeabi-v7a --name test --package com.example.test --version 1 --requirements=kivy,python2 --private . && cp *.apk ~/output\"")\n\
-    print("alias testbuild_webview=\"cd ~/testapp-webview-flask && p4a apk --arch=armeabi-v7a --name test --package com.example.test --version 1 --bootstrap webview --requirements=python2,flask --private . && cp *.apk ~/output\"")\n\
-    print("alias testbuild_service_only=\"cd ~/testapp-service_only-nogui && p4a apk --arch=armeabi-v7a --name test --package com.example.test --version 1 --bootstrap service_only --requirements=pyjnius,python2 --private . && cp *.apk ~/output\"")\n\
+    init_file += "echo \"cd ~/testapp-sdl2-keyboard && p4a apk --arch=armeabi-v7a --name test --package com.example.test --version 1 --requirements=kivy,python2 --private .\"\\n"\n\
+    init_file += "shopt -s expand_aliases\\n"\n\
+    init_file += "alias testbuild=\"cd ~/testapp-sdl2-keyboard && p4a apk --arch=armeabi-v7a --name test --package com.example.test --version 1 --requirements=kivy,python2 --private . && cp *.apk ~/output\"\\n"\n\
+    init_file += "alias testbuild_webview=\"cd ~/testapp-webview-flask && p4a apk --arch=armeabi-v7a --name test --package com.example.test --version 1 --bootstrap webview --requirements=python2,flask --private . && cp *.apk ~/output\"\\n"\n\
+    init_file += "alias testbuild_service_only=\"cd ~/testapp-service_only-nogui && p4a apk --arch=armeabi-v7a --name test --package com.example.test --version 1 --bootstrap service_only --requirements=pyjnius,python2 --private . && cp *.apk ~/output\"\\n"\n\
 else:\n\
-    print("echo \"cd ~/testapp-sdl2-keyboard && p4a apk --arch=armeabi-v7a --name test --package com.example.test --version 1 --requirements=kivy,python3 --private .\"")\n\
-    print("shopt -s expand_aliases")\n\
-    print("alias testbuild=\"cd ~/testapp-sdl2-keyboard && p4a apk --arch=armeabi-v7a --name test --package com.example.test --version 1 --requirements=kivy,python3 --private . && cp *.apk ~/output\"")\n\
-    print("alias testbuild_webview=\"cd ~/testapp-webview-flask && p4a apk --arch=armeabi-v7a --name test --package com.example.test --version 1 --bootstrap webview --requirements=python3,flask --private . && cp *.apk ~/output\"")\n\
-    print("alias testbuild_service_only=\"cd ~/testapp-service_only-nogui && p4a apk --arch=armeabi-v7a --name test --package com.example.test --version 1 --bootstrap service_only --requirements=pyjnius,python3 --private . && cp *.apk ~/output\"")\n\
+    init_file += "echo \"cd ~/testapp-sdl2-keyboard && p4a apk --arch=armeabi-v7a --name test --package com.example.test --version 1 --requirements=kivy,python3 --private .\"\\n"\n\
+    init_file += "shopt -s expand_aliases\\n"\n\
+    init_file += "alias testbuild=\"cd ~/testapp-sdl2-keyboard && p4a apk --arch=armeabi-v7a --name test --package com.example.test --version 1 --requirements=kivy,python3 --private . && cp *.apk ~/output\"\\n"\n\
+    init_file += "alias testbuild_webview=\"cd ~/testapp-webview-flask && p4a apk --arch=armeabi-v7a --name test --package com.example.test --version 1 --bootstrap webview --requirements=python3,flask --private . && cp *.apk ~/output\"\\n"\n\
+    init_file += "alias testbuild_service_only=\"cd ~/testapp-service_only-nogui && p4a apk --arch=armeabi-v7a --name test --package com.example.test --version 1 --bootstrap service_only --requirements=pyjnius,python3 --private . && cp *.apk ~/output\"\\n"\n\
 with open("/tmp/launchcmd.txt", "r") as f:\n\
     import shlex\n\
     args = shlex.split(f.read().strip())\n\
@@ -69,10 +70,12 @@ with open(os.path.expanduser("~/.pam_environment"), "a", encoding="utf-8") as f1
         var.partition("=")[0] + " DEFAULT=" +\n\
         var.partition("=")[2] for var in vars]))\n\
 with open(os.path.expanduser("~/.bash_profile"), "a", encoding="utf-8") as f2:\n\
+    f2.write("\\n" + init_file + "\\n")\n\
     f2.write("\\n" + "\\nexport ".join(vars) + "\\n")\n\
 with open(os.path.expanduser("~/.profile"), "a", encoding="utf-8") as f2:\n\
     f2.write("\\n" + "\\nexport ".join(vars) + "\\n")\n\
 with open(os.path.expanduser("~/.bashrc"), "a", encoding="utf-8") as f2:\n\
+    f2.write("\\n" + init_file + "\\n")\n\
     f2.write("\\n" + "\\nexport ".join(vars) + "\\n")\n\
 with open(os.path.expanduser("~/.additional_env"), "a", encoding="utf-8") as f3:\n\
     f3.write("\\n" + "\\nexport ".join(vars) + "\\n")' > /tmp/cmdline.py
