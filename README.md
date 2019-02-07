@@ -53,9 +53,19 @@ You can specify different software versions for the included
 Both options take "stable" (for the pip release), "master" (for the
 development version) or a tarball url (for any fork of your choice).
 
-Example to switch buildozer to development version:
+Example for switching buildozer to development version:
 
 `p4aspaces shell p4a-py3-api28ndk21 --buildozer master`
+
+#### Output generated Dockerfile
+
+To output the Dockerfile p4a build spaces generates for a certain
+environment, use `print-dockerfile`:
+
+`p4aspaces print-dockerfile --map-to-user 1000 p4a-py3-api28ndk21`
+
+(`--map-to-user` will add dropping privileges in the Dockerfile
+if you should want that, similar as in a regular shell)
 
 #### Launch without install
 
