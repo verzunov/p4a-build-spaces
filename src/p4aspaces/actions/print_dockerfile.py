@@ -22,7 +22,10 @@ def print_dockerfile(args):
     # Get user:
     if type(args.maptouser) == list:
         args.maptouser = args.maptouser[0]
-    uname_or_uid = process_uname_arg(args.maptouser)
+    uname_or_uid = process_uname_arg(
+        args.maptouser,
+        complain_about_root=False
+    )
 
     # Get environment:
     envs = buildenv.get_environments()

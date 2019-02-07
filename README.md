@@ -31,7 +31,33 @@ the environment terminates, unless you added a `--workspace`.
 and attempts to delete it after your shell terminates to give you
 a clean environment next time)
 
-### Launch without install
+### Use a Workspace
+
+To use a workspace, just specify an existing folder:
+
+`p4aspaces shell p4a-py3-api28ndk21 --workspace /my/project/folder/`
+
+It will be available in the environment at `~/workspace`. **Please note
+everything outside of that folder will still be deleted on termination**,
+so make sure to work inside your workspace if you want the changes to remain!
+
+### Advanced
+
+#### Different software versions
+
+You can specify different software versions for the included
+[python-for-android](https://github.com/kivy/python-for-android) and
+[buildozer](https://github.com/kivy/buildozer) tools with the
+`--p4a` and `--buildozer` option.
+
+Both options take "stable" (for the pip release), "master" (for the
+development version) or a tarball url (for any fork of your choice).
+
+Example to switch buildozer to development version:
+
+`p4aspaces shell p4a-py3-api28ndk21 --buildozer master`
+
+#### Launch without install
 
 You can run directly out of the `p4a-build-spaces` extracted tarball /
 development folder without installing system-wide. Just use:
@@ -39,7 +65,7 @@ development folder without installing system-wide. Just use:
   1. `chmod +x ./p4aspaces`,
   2. `./p4aspaces ...` (instead of `p4sapaces`).
 
-### Cleanup
+#### Cleanup
 
 Please note the docker images will be left around, one per environment
 you used. Also, the containers will be terminated, but also left around.

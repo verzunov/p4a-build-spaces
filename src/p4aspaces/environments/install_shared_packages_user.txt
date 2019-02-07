@@ -1,4 +1,4 @@
 
 # Install p4a & buildozer as regular user:
-RUN $PIP install --user -U buildozer {P4A_URL} # {P4A_COMMENT}
+RUN $PIP install --user -U {BUILDOZER_URL} {P4A_URL} # {P4A_COMMENT}
 

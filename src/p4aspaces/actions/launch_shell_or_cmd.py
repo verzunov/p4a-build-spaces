@@ -27,7 +27,7 @@ import sys
 from p4aspaces.actions import actions
 import p4aspaces.buildenv as buildenv
 
-def process_uname_arg(arg):
+def process_uname_arg(arg, complain_about_root=True):
     uname_or_id = arg
     try:
         uname_or_id = int(arg)
@@ -51,23 +51,26 @@ def process_uname_arg(arg):
         except KeyError:
             print("COULDN'T RESOLVE USER ID: " + str(uname_or_id))
 
-    while True:
-        print("Please specify a user on your host to "+
-            "use for permissions (to avoid running " +
-            "the build as root, which is UNSAFE).")
-        print("Use --map-to-user option to skip this prompt next time.")
-        unameresult = input("Username:")
-        if unameresult == "root" or str(unameresult) == "1":
-            result = input("You specified 'root'. This is UNSAFE. " +
-                "Continue? [y/N]")
-            if not result.lower() in ["y", "j", "yes"]:
+    if complain_about_root:
+        while True:
+            print("Please specify a user on your host to "+
+                "use for permissions (to avoid running " +
+                "the build as root, which is UNSAFE).")
+            print("Use --map-to-user option to skip this prompt next time.")
+            unameresult = input("Username:")
+            if (unameresult == "root" or str(unameresult) == "1") and \
+                    complain_about_root:
+                result = input("You specified 'root'. This is UNSAFE. " +
+                    "Continue? [y/N]")
+                if not result.lower() in ["y", "j", "yes"]:
+                    continue
+                uname_or_id = 1
+                return uname_or_id
+            if len(unameresult.strip()) == 0:
                 continue
-            uname_or_id = 1
-            return uname_or_id
-        if len(unameresult.strip()) == 0:
-            continue
-        return process_uname_arg(unameresult)
-
+            return process_uname_arg(unameresult)
+    else:
+        return "1"
 
 def launch_shell_or_cmd(args, shell=False):
     if shell:
@@ -121,6 +124,13 @@ def launch_shell_or_cmd(args, shell=False):
         "archive/master.zip'), or the branch " +
         "name (like 'master'). Will default to master branch " +
         "if unspecified", dest="p4a_url")
+    argparser.add_argument("--buildozer",
+        default=None, nargs="?",
+        help="Specify buildozer release archive to use " +
+        "(like 'https://github.com/kivy/buildozer/" +
+        "archive/master.zip'), or the branch " +
+        "name (like 'master'). Will default to stable on pypi " +
+        "if unspecified", dest="buildozer_url")
     args = argparser.parse_args(args)
     if shell:
         args.command = "bash"
@@ -159,14 +169,20 @@ def launch_shell_or_cmd(args, shell=False):
     env = [env for env in envs if env.name == env_name][0]
 
     # Choose download target:
-    dl_target = "master"
+    dl_target_p4a = "master"
+    dl_target_buildozer = "stable"
     if args.p4a_url is not None:
-        dl_target = args.p4a_url
+        dl_target_p4a = args.p4a_url
+    if args.buildozer_url is not None:
+        dl_target_buildozer = args.buildozer_url
 
     # Launch it:
-    env.p4a_target = dl_target
-    env.launch_shell(force_p4a_refetch=args.force_p4a_redownload,
-        output_file=args.output_file, launch_cmd=args.command,
+    env.p4a_target = dl_target_p4a
+    env.buildozer_target = dl_target_buildozer
+    env.launch_shell(
+        force_p4a_refetch=args.force_p4a_redownload,
+        output_file=args.output_file,
+        launch_cmd=args.command,
         workspace=args.workspace,
         user_id_or_name=uname_or_id,
         clean_image_rebuild=args.clean_image_rebuild)

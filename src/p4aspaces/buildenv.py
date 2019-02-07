@@ -31,7 +31,7 @@ import urllib.parse
 
 class BuildEnvironment(object):
     def __init__(self, folder_path, envs_base_dir,
-            p4a_target="master"):
+            p4a_target="master", buildozer_target="stable"):
         self.path = os.path.normpath(os.path.abspath(folder_path))
         if not os.path.exists(folder_path):
             raise RuntimeError("BuildEnvironment() needs " +
@@ -39,6 +39,7 @@ class BuildEnvironment(object):
         self.name = os.path.basename(self.path)
         self.envs_dir = envs_base_dir
         self.p4a_target = p4a_target
+        self.buildozer_target = buildozer_target
         self.description = open(
             os.path.join(self.path, "short_description.txt"),
             "r",
@@ -62,16 +63,29 @@ class BuildEnvironment(object):
         env_settings[self.name]["last_build_p4a_uuid"] = build_p4a_uuid
         settings.set("environments", env_settings)
 
-        dl_target = self.p4a_target
-        if dl_target is None or len(dl_target.strip()) == 0:
-            dl_target = "https://github.com/kivy/python-for-android/" +\
-                        "archive/master.zip"
-        elif dl_target.find("/") < 0 and \
-                dl_target.find("\\") < 0:  # probably a branch
-            dl_target = "https://github.com/kivy/python-for-android/" +\
-                "archive/" + urllib.parse.quote(dl_target) + ".zip"
-        else:
-            dl_target = str(dl_target).strip()
+        dl_target_p4a = self.p4a_target
+        dl_target_buildozer = self.buildozer_target
+        def process_dl_target(package_name, dl_target, repo, default=None):
+            if dl_target is None or len(dl_target_p4a.strip()) == 0:
+                dl_target = default
+            elif dl_target == "stable":
+                dl_target = package_name
+            elif dl_target.find("/") < 0 and \
+                    dl_target.find("\\") < 0:  # probably a branch
+                dl_target = repo + "/" +\
+                    "archive/" + urllib.parse.quote(dl_target) + ".zip"
+            else:
+                dl_target = str(dl_target).strip()
+            return dl_target
+        dl_target_p4a = process_dl_target(
+            "python-for-android", dl_target_p4a,
+            "https://github.com/kivy/python-for-android",
+            default=("https://github.com/kivy/python-for-android/"
+                     "archive/master.zip"))
+        dl_target_buildozer = process_dl_target(
+            "buildozer", dl_target_buildozer,
+            "https://github.com/kivy/buildozer",
+            default="buildozer")
 
         with open(os.path.join(self.envs_dir, "setup_user_env.txt"),
                   "r") as f:
@@ -87,9 +101,12 @@ class BuildEnvironment(object):
             install_shared_instructions_user = \
                 install_shared_instructions_user.replace(
                 "{P4A_URL}", "'" + str(
-                dl_target.replace("'", "'\"'\"'")) + "'").replace(
+                dl_target_p4a.replace("'", "'\"'\"'")) + "'").replace(
                 "{P4A_COMMENT}", " # " +
-                "p4a build " + str(build_p4a_uuid))
+                "p4a build " + str(build_p4a_uuid)).replace(
+                "{BUILDOZER_URL}", "'" + str(
+                dl_target_buildozer.replace("'", "'\"'\"'")) + "'"
+                )
             setup_user_env_instructions = \
                 setup_user_env_instructions.replace(
                 "{INSTALL_SHARED_PACKAGES_USER}",
