@@ -198,16 +198,17 @@ class BuildEnvironment(object):
                 + "'")
 
             # Ensure ccache directory exists & is writable:
-            os.system("mkdir -p " + shlex.quote(ccache_dir))
-            os.system("mkdir -p " + shlex.quote(
-                os.path.join(ccache_dir, "contents")))
-            os.system("mkdir -p " + shlex.quote(
-                os.path.join(ccache_dir, "pip-build-dir")))
+            os.makedirs(shlex.quote(ccache_dir), exist_ok=True)
+            os.makedirs(shlex.quote(
+                os.path.join(ccache_dir, "contents")), exist_ok=True)
+            os.makedirs(shlex.quote(
+                os.path.join(ccache_dir, "pip-build-dir")), exist_ok=True)
             try:
                 uid = int(user_id_or_name)
             except (TypeError, ValueError):
                 uid = 1000
-            os.system("chown -R " + str(uid) + " " + shlex.quote(ccache_dir))
+            os.system("chown -R " + str(uid) + " -- " + shlex.quote(ccache_dir))
+            os.system("chmod a-r -- " + shlex.quote(ccache_dir))
 
             # Launch shell:
             workspace_volume_args = []
