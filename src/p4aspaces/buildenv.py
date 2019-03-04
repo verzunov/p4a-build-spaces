@@ -22,6 +22,7 @@ THE SOFTWARE.
 
 import os
 from .settings import settings
+import shlex
 import shutil
 import subprocess
 import sys
@@ -30,8 +31,12 @@ import uuid
 import urllib.parse
 
 class BuildEnvironment(object):
-    def __init__(self, folder_path, envs_base_dir,
-            p4a_target="master", buildozer_target="stable"):
+    def __init__(self,
+            folder_path,
+            envs_base_dir,
+            p4a_target="master",
+            buildozer_target="stable"
+            ):
         self.path = os.path.normpath(os.path.abspath(folder_path))
         if not os.path.exists(folder_path):
             raise RuntimeError("BuildEnvironment() needs " +
@@ -46,8 +51,11 @@ class BuildEnvironment(object):
             encoding="utf-8"
         ).read().strip().partition("\n")[0]
 
-    def get_docker_file(self, force_p4a_refetch=False, launch_cmd="bash",
-            start_dir="/home/userhome", add_workspace=False,
+    def get_docker_file(self,
+            force_p4a_refetch=False,
+            launch_cmd="bash",
+            start_dir="/home/userhome",
+            add_workspace=False,
             user_id_or_name="root"):
         image_name = "p4atestenv-" + str(self.name)
 
@@ -146,9 +154,15 @@ class BuildEnvironment(object):
                     "VOLUME /home/userhome/workspace/")
             return t
 
-    def launch_shell(self, force_p4a_refetch=False, launch_cmd="bash",
-            output_file=None, workspace=None, clean_image_rebuild=False,
-            user_id_or_name="root"):
+    def launch_shell(self,
+            force_p4a_refetch=False,
+            launch_cmd="bash",
+            output_file=None,
+            workspace=None,
+            clean_image_rebuild=False,
+            user_id_or_name="root",
+            ccache_dir=os.path.join(tempfile.gettempdir(), "p4a-ccache")
+            ):
         # Build container:
         image_name = "p4atestenv-" + str(self.name)
         container_name = image_name + "-" +\
@@ -183,6 +197,18 @@ class BuildEnvironment(object):
                 os.path.join(temp_d, "output").replace("'", "'\"'\"'")
                 + "'")
 
+            # Ensure ccache directory exists & is writable:
+            os.system("mkdir -p " + shlex.quote(ccache_dir))
+            os.system("mkdir -p " + shlex.quote(
+                os.path.join(ccache_dir, "contents")))
+            os.system("mkdir -p " + shlex.quote(
+                os.path.join(ccache_dir, "pip-build-dir")))
+            try:
+                uid = int(user_id_or_name)
+            except (TypeError, ValueError):
+                uid = 1000
+            os.system("chown -R " + str(uid) + " " + shlex.quote(ccache_dir))
+
             # Launch shell:
             workspace_volume_args = []
             if workspace != None:
@@ -192,7 +218,8 @@ class BuildEnvironment(object):
             cmd = ["docker", "run",
                 "--name", container_name, "-ti",
                 "-v", os.path.join(temp_d, "output") +
-                ":/home/userhome/output:rw,Z"] +\
+                ":/home/userhome/output:rw,Z",
+                "-v", ccache_dir + ":/ccache/:rw,Z"] +\
                 workspace_volume_args + [
                 image_name]
             subprocess.call(cmd)

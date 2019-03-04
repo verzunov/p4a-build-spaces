@@ -1,4 +1,13 @@
 
+# Enable ccache:
+RUN apt install -y ccache
+ENV USE_CCACHE 1
+ENV CCACHE_DIR /ccache/contents/
+ENV CC ccache gcc
+ENV CCACHE_DEBUG 1
+ENV CCACHE_LOGFILE /ccache/contents/cache.debug.txt
+VOLUME /ccache/
+
 # Fix SDK permissions:
 RUN if [ -x /sdk-install ]; then chmod a+x /sdk-install/tools/bin/*; fi
 
