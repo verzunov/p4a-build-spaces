@@ -17,8 +17,9 @@ RUN apt update && apt install -y zip python3 python-pip python python3-venv pyth
 
 # Install Android SDK:
 RUN mkdir /sdk-install/
-RUN cd /sdk-install && wget --read-timeout=5 --tries=0 https://dl.google.com/android/repository/${SDK_TOOLS}
-RUN cd /sdk-install && unzip ./sdk-tools-*.zip && chmod +x ./tools//bin/sdkmanager
+RUN cd /sdk-install && wget --read-timeout=5 --tries=0 https://dl.google.com/android/repository/${SDK_TOOLS} \
+ && cd /sdk-install && unzip ./sdk-tools-*.zip && chmod +x ./tools//bin/sdkmanager \
+ && rm -v sdk-tools-*.zip
 RUN /sdk-install/tools/bin/sdkmanager --update
 RUN yes | /sdk-install/tools/bin/sdkmanager "platform-tools" "platforms;android-19" "ndk-bundle" "build-tools;25.0.2"
 
