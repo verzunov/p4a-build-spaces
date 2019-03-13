@@ -33,7 +33,10 @@ RUN /bin/echo -e '#!/usr/bin/python3\n\
 import json\n\
 import os\n\
 print("echo \"\"")\n\
+print("echo \"  *** WELCOME to p4a-build-spaces ***\"\\n")\n\
+print("echo \"\"\\n")\n\
 print("echo \"To build a kivy demo app, use this command:\"")\n\
+print("echo \"\"\\n")\n\
 init_file = ""\n\
 if os.environ["PIP"] == "pip2":\n\
     demoapp_line = "echo \"$ cd ~/testapp-sdl2-keyboard && p4a apk --arch=armeabi-v7a --name test --package com.example.test --version 1 --requirements=kivy,python2 --private .\"\\n"\n\
@@ -49,7 +52,9 @@ else:\n\
     init_file += "alias testbuild=\"cd ~/testapp-sdl2-keyboard && p4a apk --arch=armeabi-v7a --name test --package com.example.test --version 1 --requirements=kivy,python3 --private . && cp *.apk ~/output\"\\n"\n\
     init_file += "alias testbuild_webview=\"cd ~/testapp-webview-flask && p4a apk --arch=armeabi-v7a --name test --package com.example.test --version 1 --bootstrap webview --requirements=python3,flask --private . && cp *.apk ~/output\"\\n"\n\
     init_file += "alias testbuild_service_only=\"cd ~/testapp-service_only-nogui && p4a apk --arch=armeabi-v7a --name test --package com.example.test --version 1 --bootstrap service_only --requirements=pyjnius,python3 --private . && cp *.apk ~/output\"\\n"\n\
-print("echo \"... or use the shortcut alias: $ testbuild\"\\n")\n\
+print("echo \"\"\\n")\n\
+print("echo \"... or use the shortcut alias \\`testbuild\\`!\"\\n")\n\
+print("echo \"\"\\n")\n\
 with open("/tmp/launchcmd.txt", "r") as f:\n\
     import shlex\n\
     args = shlex.split(f.read().strip())\n\
