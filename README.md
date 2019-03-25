@@ -73,7 +73,7 @@ You can run directly out of the `p4a-build-spaces` extracted tarball /
 development folder without installing system-wide. Just use:
 
   1. `chmod +x ./p4aspaces`,
-  2. `./p4aspaces ...` (instead of `p4sapaces`).
+  2. `./p4aspaces ...` (instead of `p4aspaces`).
 
 #### Cleanup
 
