@@ -208,7 +208,8 @@ class BuildEnvironment(object):
             except (TypeError, ValueError):
                 uid = 1000
             os.system("chown -R " + str(uid) + " -- " + shlex.quote(ccache_dir))
-            os.system("chmod a-r -- " + shlex.quote(ccache_dir))
+            os.system("chmod a-rx -- " + shlex.quote(ccache_dir))
+            os.system("chmod u+rx -- " + shlex.quote(ccache_dir))
 
             # Launch shell:
             workspace_volume_args = []
@@ -222,7 +223,8 @@ class BuildEnvironment(object):
                 ":/home/userhome/output:rw,Z",
                 "-v", ccache_dir + ":/ccache/:rw,Z"] +\
                 workspace_volume_args + [
-                image_name]
+                image_name
+            ]
             subprocess.call(cmd)
             if output_file is not None:
                 for f in os.listdir(os.path.join(temp_d, "output")):
