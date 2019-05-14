@@ -67,8 +67,8 @@ vars = ["ANDROIDAP='$ANDROIDAPI'",\n\
     "ANDROIDNDKVER='$NDKVER'",\n\
     "NDKAPI='$NDKAPI'",\n\
     "HOME=/home/userhome",\n\
-    "GRADLE_OPTS=\"-Xms1724m -Xmx5048m -Dorg.gradle.jvmargs='"'"'-Xms1724m -Xmx5048m'"'"'\"",\n\
-    "JAVA_OPTS=\"-Xms1724m -Xmx5048m\"",\n\
+    "GRADLE_OPTS=\"-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2 -Dkotlin.compiler.execution.strategy=in-process -Xms512m -Xmx1024m -Dorg.gradle.jvmargs='"'"'-Xms512m -Xmx1024m'"'"'\"",\n\
+    "JAVA_OPTS=\"-Xms512m -Xmx1024m\"",\n\
     "TESTPATH=\"$PATH:/home/userhome/.local/bin\"",\n\
     "PATH=\"$PATH:/home/userhome/.local/bin\"",\n\
     "ANDROIDSDK=/sdk-install/ ANDROIDNDK=\"'$NDKDIR'\"",\n\
