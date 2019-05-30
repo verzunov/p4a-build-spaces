@@ -106,7 +106,7 @@ def launch_shell_or_cmd(args, shell=False):
         "build environment at ~/workspace. If not specified, there " +
         "will be no access to files outside of the container",
         default=None, dest="workspace", nargs="?")
-    argparser.add_argument("--buildozerdir",
+    argparser.add_argument("--buildozer_dir",
             help="Specify a buildozer workspace directory to be mounted into the " +
             "buildozer environment at ~/.buildozer. If not specified, there " +
             "will be no access to files outside of the container",
