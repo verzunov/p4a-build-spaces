@@ -218,10 +218,10 @@ class BuildEnvironment(object):
                 workspace_volume_args += ["-v",
                     os.path.abspath(workspace) +
                     ":/home/userhome/workspace:rw,Z"]
-            buildozerdir_volume_args = []
+            buildozer_dir_volume_args = []
             if buildozer_dir != None:
-                buildozer_volume_args += ["-v",
-                    os.path.abspath(buildozerdir) +
+                buildozer_dir_volume_args += ["-v",
+                    os.path.abspath(buildozer_dir) +
                     ":/home/userhome/.buildozer:rw,Z"]
             cmd = ["docker", "run",
                 "--name", container_name, "-ti",
@@ -229,7 +229,7 @@ class BuildEnvironment(object):
                 ":/home/userhome/output:rw,Z",
                 "-v", ccache_dir + ":/ccache/:rw,Z"] +\
                 workspace_volume_args +\
-                buildozerdir_volume_args + [
+                buildozer_dir_volume_args + [
                 image_name
             ]
             subprocess.call(cmd)
