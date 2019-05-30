@@ -159,7 +159,7 @@ class BuildEnvironment(object):
             launch_cmd="bash",
             output_file=None,
             workspace=None,
-            buildozer=None,
+            buildozerdir=None,
             clean_image_rebuild=False,
             user_id_or_name="root",
             ccache_dir=os.path.join(tempfile.gettempdir(), "p4a-ccache")
@@ -218,10 +218,10 @@ class BuildEnvironment(object):
                 workspace_volume_args += ["-v",
                     os.path.abspath(workspace) +
                     ":/home/userhome/workspace:rw,Z"]
-            buildozer_volume_args = []
-            if buildozer != None:
+            buildozerdir_volume_args = []
+            if buildozerdir != None:
                 buildozer_volume_args += ["-v",
-                    os.path.abspath(buildozer) +
+                    os.path.abspath(buildozerdir) +
                     ":/home/userhome/.buildozer:rw,Z"]
             cmd = ["docker", "run",
                 "--name", container_name, "-ti",
@@ -229,7 +229,7 @@ class BuildEnvironment(object):
                 ":/home/userhome/output:rw,Z",
                 "-v", ccache_dir + ":/ccache/:rw,Z"] +\
                 workspace_volume_args +\
-                buildozer_volume_args + [
+                buildozerdir_volume_args + [
                 image_name
             ]
             subprocess.call(cmd)
