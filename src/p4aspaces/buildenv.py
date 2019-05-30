@@ -159,7 +159,7 @@ class BuildEnvironment(object):
             launch_cmd="bash",
             output_file=None,
             workspace=None,
-            buildozerdir=None,
+            buildozer_dir=None,
             clean_image_rebuild=False,
             user_id_or_name="root",
             ccache_dir=os.path.join(tempfile.gettempdir(), "p4a-ccache")
@@ -219,7 +219,7 @@ class BuildEnvironment(object):
                     os.path.abspath(workspace) +
                     ":/home/userhome/workspace:rw,Z"]
             buildozerdir_volume_args = []
-            if buildozerdir != None:
+            if buildozer_dir != None:
                 buildozer_volume_args += ["-v",
                     os.path.abspath(buildozerdir) +
                     ":/home/userhome/.buildozer:rw,Z"]
