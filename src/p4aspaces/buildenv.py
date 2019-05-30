@@ -218,7 +218,6 @@ class BuildEnvironment(object):
                     os.path.abspath(workspace) +
                     ":/home/userhome/workspace:rw,Z"]
                         workspace_volume_args = []
-            
             buildozer_volume_args = []
             if buildozer != None:
                 buildozer_volume_args += ["-v",
