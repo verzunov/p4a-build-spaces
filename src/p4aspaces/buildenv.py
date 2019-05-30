@@ -159,6 +159,7 @@ class BuildEnvironment(object):
             launch_cmd="bash",
             output_file=None,
             workspace=None,
+            buildozer=None,
             clean_image_rebuild=False,
             user_id_or_name="root",
             ccache_dir=os.path.join(tempfile.gettempdir(), "p4a-ccache")
