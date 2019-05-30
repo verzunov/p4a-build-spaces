@@ -189,7 +189,7 @@ def launch_shell_or_cmd(args, shell=False):
         output_file=args.output_file,
         launch_cmd=args.command,
         workspace=args.workspace,
-        buildozer_dir=args.buildozer_dir
+        buildozer_dir=args.buildozer_dir,
         user_id_or_name=uname_or_id,
         clean_image_rebuild=args.clean_image_rebuild)
 
